@@ -14,12 +14,15 @@ net
       username: null,
       room: "geral",
       authenticated: false,
+      blockedUsers: new Set(),
     };
 
     rooms["geral"].add(client);
     clients.push(client);
 
-    socket.write("[chatney] digite /login seu_nome para entrar no chat\n");
+    socket.write(
+      "\x1b[1m\x1b[36m[chatney] digite /login seu_nome para entrar no chat.\x1b[0m\n"
+    );
 
     socket.on("data", (data) => {
       const message = data.toString().trim();
@@ -32,16 +35,20 @@ net
         const handler = commands[command];
 
         if (!handler) {
-          socket.write("[chatney] comando não reconhecido.\n");
+          socket.write(
+            "\x1b[1m\x1b[36m[chatney] comando não reconhecido.\x1b[0m\n"
+          );
           return;
         }
 
-        handler(client, args);
+        handler(rooms, clients, client, args);
         return;
       }
 
       if (!client.authenticated) {
-        socket.write("Você precisa fazer login com /login seu_nome\n");
+        socket.write(
+          "\x1b[1m\x1b[36m[chatney] Você precisa fazer login com /login seu_nome\x1b[0m\n"
+        );
         return;
       }
 
