@@ -51,7 +51,25 @@ const commands = {
     rooms[roomName].add(client);
     return;
   },
-  "/whisper": () => {},
+  "/whisper": (client, args) => {
+    const [destName, ...messageParts] = args;
+    const message = messageParts.join(" ");
+    const dest = clients.find((c) => c.username === destName);
+
+    if (!dest) {
+      client.socket.write(`[chatney] usuário ${destName} não encontrado`);
+      return;
+    }
+
+    dest.socket.write(`[direct de ${client.username}] ${message}`);
+  },
+  "/list": (client) => {
+    const usernames = clients
+      .map((c) => c.username)
+      .filter(Boolean)
+      .join(" | ");
+    client.socket.write(`[chatney] usuários online nesta sala: ${usernames}\n`);
+  },
 };
 
 net
@@ -70,7 +88,7 @@ net
     socket.on("data", (data) => {
       const message = data.toString().trim();
 
-      console.log(`Mensagem recebida ${message}`);
+      console.log(`[LOG] Mensagem recebida: ${message}`);
 
       if (message.startsWith("/")) {
         const [command, ...args] = message.split(" ");
@@ -93,7 +111,7 @@ net
 
       for (const c of clients) {
         if (c.socket !== socket && c.username && client.room == c.room) {
-          c.socket.write(`[${client.room} @ [${client.username}] ${message}\n`);
+          c.socket.write(`[${client.room} @ ${client.username}] ${message}\n`);
         }
       }
     });
