@@ -42,13 +42,25 @@ const commands = {
     const roomName = args[0];
 
     if (!(roomName in rooms)) {
-      console.log("Room inexistente, criando...");
+      console.log("[LOG] Room inexistente, criando...");
       rooms[roomName] = new Set();
     }
 
     rooms[client.room].delete(client);
     client.room = roomName;
     rooms[roomName].add(client);
+
+    client.socket.write(`[chatney] você entrou na sala ${roomName}`);
+
+    const users = clients.filter(
+      (c) => c.username !== client.username && c.room === roomName
+    );
+
+    for (const user of users) {
+      user.socket.write(
+        `[chatney] usuário ${client.username} entrou na sala\n`
+      );
+    }
     return;
   },
   "/whisper": (client, args) => {
