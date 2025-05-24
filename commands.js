@@ -14,6 +14,15 @@ const commands = {
       return;
     }
 
+    const userAlreadyExists = allClients.find((c) => c.username == args[0]);
+
+    if (userAlreadyExists) {
+      client.socket.write(
+        `\x1b[1m\x1b[36m[⚠️  chatney] nome de usuário indisponível.\x1b[0m\n`
+      );
+      return;
+    }
+
     client.username = args[0];
     client.authenticated = true;
     client.socket.write(
@@ -147,7 +156,7 @@ const commands = {
       .filter(Boolean)
       .join(" | ");
     client.socket.write(
-      `\x1b[1m\x1b[36m[chatney] usuários online nesta sala: ${usernames}.\x1b[0m\n`
+      `\x1b[1m\x1b[36m[chatney] usuários online nesta sala: ${usersInRoom}.\x1b[0m\n`
     );
   },
 };
