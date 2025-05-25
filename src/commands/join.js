@@ -1,14 +1,18 @@
+const { info } = require("../utils/chatFormat");
+
 module.exports = (rooms, allClients, client, args) => {
   if (args[1]) {
     client.socket.write(
-      `\x1b[1m\x1b[36m[chatney] não é permitido o uso de espaços no nome da sala.\x1b[0m\n`
+      info("não é permitido o uso de espaços no nome da sala.")
     );
     return;
   }
 
   if (!client.authenticated) {
     client.socket.write(
-      "Você precisa fazer login com /login seu_nome para entrar em uma sala.\x1b[0m\n"
+      info(
+        "Você precisa fazer login com /login seu_nome para entrar em uma sala."
+      )
     );
     return;
   }
@@ -24,17 +28,13 @@ module.exports = (rooms, allClients, client, args) => {
   client.room = roomName;
   rooms[roomName].add(client);
 
-  client.socket.write(
-    `\x1b[1m\x1b[36m[chatney] você entrou na sala ${roomName}.\x1b[0m\n`
-  );
+  client.socket.write(info(`você entrou na sala ${roomName}.`));
 
   const users = allClients.filter(
     (c) => c.username !== client.username && c.room === roomName
   );
 
   for (const user of users) {
-    user.socket.write(
-      `\x1b[1m\x1b[36m[chatney] usuário ${client.username} entrou na sala.\x1b[0m\n`
-    );
+    user.socket.write(info(`usuário ${client.username} entrou na sala.`));
   }
 };

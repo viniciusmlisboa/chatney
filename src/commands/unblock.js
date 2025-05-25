@@ -2,9 +2,7 @@ const blockService = require("../services/blockService");
 
 module.exports = (rooms, allClients, client) => {
   if (!args[0]) {
-    client.socket.write(
-      `\x1b[1m\x1b[36m[chatney] você precisa inserir um nome.\x1b[0m\n`
-    );
+    client.socket.write(info("você precisa inserir um nome."));
     return;
   }
 
@@ -17,13 +15,11 @@ module.exports = (rooms, allClients, client) => {
 
   if (!clientToUnblock) {
     client.socket.write(
-      `\x1b[1m\x1b[36m[chatney] usuário ${usernameToUnblock} não encontrado na lista de bloqueios.\x1b[0m\n`
+      info(`usuário ${usernameToUnblock} não encontrado na lista de bloqueios.`)
     );
     return;
   }
 
   blockService.unblockUser(usernameToUnblock);
-  client.socket.write(
-    `\x1b[1m\x1b[36m[chatney] o usuário ${usernameToUnblock} foi desbloqueado.\x1b[0m\n`
-  );
+  client.socket.write(info(`o usuário ${usernameToUnblock} foi desbloqueado.`));
 };

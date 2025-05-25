@@ -8,9 +8,7 @@ module.exports = (rooms, allClients, client, args) => {
   const dest = userService.getByUsername(destName);
 
   if (!dest) {
-    client.socket.write(
-      `\x1b[1m\x1b[36m[chatney] usuário ${destName} não encontrado.\x1b[0m\n`
-    );
+    client.socket.write(info(`usuário ${destName} não encontrado.`));
     return;
   }
 
@@ -18,7 +16,9 @@ module.exports = (rooms, allClients, client, args) => {
 
   if (iAmBlocked) {
     client.socket.write(
-      `\x1b[1m\x1b[36m[chatney] você não pode mandar mensagens privadas a ${destName} porque você está bloqueado.\x1b[0m\n`
+      info(
+        `você não pode mandar mensagens privadas a ${destName} porque você está bloqueado.`
+      )
     );
     return;
   }

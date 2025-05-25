@@ -1,6 +1,6 @@
 const net = require("net");
-const fs = require("fs");
 const commands = require("./commands");
+const { info } = require("./utils/chatFormat");
 
 const clients = [];
 
@@ -21,23 +21,17 @@ net
     rooms["geral"].add(client);
     clients.push(client);
 
-    socket.write(
-      "\x1b[1m\x1b[36m[chatney] digite /login seu_nome para entrar no chat.\x1b[0m\n"
-    );
+    socket.write(info("digite /login seu_nome para entrar no chat."));
 
     socket.on("data", (data) => {
       const message = data.toString().trim();
-
-      // console.log(`[LOG] Mensagem recebida: ${message}`);
 
       if (message.startsWith("/")) {
         const [command, ...args] = message.split(" ");
         const handler = commands[command];
 
         if (!handler) {
-          socket.write(
-            "\x1b[1m\x1b[36m[chatney] comando não reconhecido.\x1b[0m\n"
-          );
+          socket.write(info("comando não reconhecido."));
           return;
         }
 
@@ -46,9 +40,7 @@ net
       }
 
       if (!client.authenticated) {
-        socket.write(
-          "\x1b[1m\x1b[36m[chatney] Você precisa fazer login com /login seu_nome\x1b[0m\n"
-        );
+        socket.write(info("Você precisa fazer login com /login seu_nome."));
         return;
       }
 
