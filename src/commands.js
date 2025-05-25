@@ -2,38 +2,100 @@ const userService = require("./services/userService");
 const blockService = require("./services/blockService");
 
 const commands = {
-  "/login": (rooms, allClients, client, args) => {
-    if (args[1]) {
+  "/signin": (rooms, allClientes, client, args) => {
+    if (client.authenticated) {
       client.socket.write(
-        `\x1b[1m\x1b[36m[chatney] não é permitido o uso de espaços no nome.\x1b[0m\n`
+        `\x1b[1m\x1b[36m[chatney] você já está logado em ${client.username}.\x1b[0m\n`
       );
       return;
     }
 
-    if (!args[0]) {
+    if (args.length == 0 || args.length > 2) {
       client.socket.write(
-        `\x1b[1m\x1b[36m[chatney] você precisa inserir um nome.\x1b[0m\n`
+        `\x1b[1m\x1b[36m[chatney] o comando está incorreto.\x1b[0m\n`
       );
       return;
     }
 
-    // const userAlreadyExists = allClients.find((c) => c.username == args[0]);
-    const userAlreadyExists = userService.getByUsername(args[0]);
+    const username = args[0];
+    const password = args[1];
+
+    const userAlreadyExists = userService.getByUsername(username);
 
     if (userAlreadyExists) {
       client.socket.write(
-        `\x1b[1m\x1b[36m[⚠️  chatney] nome de usuário indisponível.\x1b[0m\n`
+        `\x1b[1m\x1b[36m[chatney] nome de usuário indisponível.\x1b[0m\n`
       );
       return;
     }
 
-    client.username = args[0];
+    userService.create(username, password);
+    client.username = username;
     client.authenticated = true;
 
-    console.log(userService.create(args[0]));
     client.socket.write(
-      `\x1b[1m\x1b[36m[chatney] agora você conversar ${client.username}!\x1b[0m\n`
+      `\x1b[1m\x1b[36m[chatney] boas vindas ao chatney!\x1b[0m\n`
     );
+  },
+  "/login": (rooms, allClients, client, args) => {
+    if (client.authenticated) {
+      client.socket.write(
+        `\x1b[1m\x1b[36m[chatney] você já está logado em ${client.username}.\x1b[0m\n`
+      );
+      return;
+    }
+
+    if (args.length == 0 || args.length > 2) {
+      client.socket.write(
+        `\x1b[1m\x1b[36m[chatney] o comando está incorreto.\x1b[0m\n`
+      );
+      return;
+    }
+
+    const username = args[0];
+    const password = args[1];
+
+    // const userAlreadyExists = allClients.find((c) => c.username == args[0]);
+    const user = userService.getByUsername(username);
+
+    if (!user) {
+      client.socket.write(
+        `\x1b[1m\x1b[36m[chatney] usuário inválido ou inexistinte.\x1b[0m\n`
+      );
+      return;
+    }
+
+    if (user.password !== password) {
+      client.socket.write(
+        `\x1b[1m\x1b[36m[chatney] senha incorreta, tente novamente!\x1b[0m\n`
+      );
+      return;
+    }
+
+    client.username = username;
+    client.authenticated = true;
+    client.socket.write(
+      `\x1b[1m\x1b[36m[chatney] que bom te ver de novo!\x1b[0m\n`
+    );
+  },
+  "/logout": (rooms, allClientes, client, args) => {
+    const roomUsers = allClientes.filter(
+      (c) => c.room === client.room && c !== client
+    );
+
+    for (const user of roomUsers) {
+      user.socket.write(
+        `\x1b[1m\x1b[36m[chatney] ${client.username} saiu do chat.\x1b[0m\n`
+      );
+    }
+
+    client.username = null;
+    client.authenticated = false;
+    rooms[client.room]?.delete(client);
+    client.room = "geral";
+    client.blockedUsers = new Set();
+
+    client.socket.write(`\x1b[1m\x1b[36m[chatney] até a próxima!\x1b[0m\n`);
   },
   "/join": (rooms, allClients, client, args) => {
     if (args[1]) {
