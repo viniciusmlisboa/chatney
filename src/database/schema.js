@@ -2,7 +2,8 @@ const db = require("./db");
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-        username TEXT PRIMARY KEY
+        username TEXT PRIMARY KEY,
+        password TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS blocked_users (
