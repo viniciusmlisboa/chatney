@@ -28,11 +28,10 @@ net
     socket.on("data", (data) => {
       const message = data.toString().trim();
 
-      console.log(`[LOG] Mensagem recebida: ${message}`);
+      // console.log(`[LOG] Mensagem recebida: ${message}`);
 
       if (message.startsWith("/")) {
         const [command, ...args] = message.split(" ");
-        console.log(command);
         const handler = commands[command];
 
         if (!handler) {
