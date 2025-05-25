@@ -1,3 +1,5 @@
+const fs = require("fs").promises;
+
 const commands = {
   "/login": (rooms, allClients, client, args) => {
     if (args[1]) {
