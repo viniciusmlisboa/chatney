@@ -59,5 +59,14 @@ net
         }
       }
     });
+
+    socket.on("end", () => {
+      clients.splice(clients.indexOf(socket), 1);
+      console.log("[LOG] Cliente desconectado");
+    });
+
+    socket.on("error", (err) => {
+      console.log("[LOG] Erro no cliente:", err.message);
+    });
   })
   .listen(3118, () => console.log("Servidor escutando na porta 3118"));
