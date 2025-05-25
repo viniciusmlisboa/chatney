@@ -1,4 +1,5 @@
-const fs = require("fs").promises;
+const userService = require("./services/userService");
+const blockService = require("./services/blockService");
 
 const commands = {
   "/login": (rooms, allClients, client, args) => {
@@ -16,7 +17,8 @@ const commands = {
       return;
     }
 
-    const userAlreadyExists = allClients.find((c) => c.username == args[0]);
+    // const userAlreadyExists = allClients.find((c) => c.username == args[0]);
+    const userAlreadyExists = userService.getByUsername(args[0]);
 
     if (userAlreadyExists) {
       client.socket.write(
@@ -27,6 +29,8 @@ const commands = {
 
     client.username = args[0];
     client.authenticated = true;
+
+    console.log(userService.create(args[0]));
     client.socket.write(
       `\x1b[1m\x1b[36m[chatney] agora você conversar ${client.username}!\x1b[0m\n`
     );
@@ -75,7 +79,9 @@ const commands = {
   "/whisper": (rooms, allClients, client, args) => {
     const [destName, ...messageParts] = args;
     const message = messageParts.join(" ");
-    const dest = allClients.find((c) => c.username === destName);
+    // const dest = allClients.find((c) => c.username === destName);
+
+    const dest = userService.getByUsername(destName);
 
     if (!dest) {
       client.socket.write(
@@ -84,7 +90,10 @@ const commands = {
       return;
     }
 
-    if (dest.blockedUsers.has(client.username)) {
+    const iAmBlocked = blockService.isBlocked(destName, client.username);
+
+    // if (dest.blockedUsers.has(client.username)) {
+    if (iAmBlocked) {
       client.socket.write(
         `\x1b[1m\x1b[36m[chatney] você não pode mandar mensagens privadas a ${destName} porque você está bloqueado.\x1b[0m\n`
       );
@@ -102,9 +111,12 @@ const commands = {
     }
 
     const usernameToBlock = args[0];
-    const clientToBlock = allClients.find(
-      (c) => c.username === usernameToBlock
-    );
+
+    // const clientToBlock = allClients.find(
+    //   (c) => c.username === usernameToBlock
+    // );
+
+    const clientToBlock = userService.getByUsername(usernameToBlock);
 
     if (!clientToBlock) {
       client.socket.write(
@@ -113,7 +125,8 @@ const commands = {
       return;
     }
 
-    client.blockedUsers.add(usernameToBlock);
+    // client.blockedUsers.add(usernameToBlock);
+    blockService.blockUser(client.username, usernameToBlock);
 
     client.socket.write(
       `\x1b[1m\x1b[36m[chatney] usuário ${usernameToBlock} foi bloqueado e não poderá mandar mensagens privadas.\x1b[0m\n`
@@ -128,25 +141,32 @@ const commands = {
     }
 
     const usernameToUnblock = args[0];
-    const clientToUnblock = allClients.find(
-      (c) => c.username === usernameToUnblock
+    // const clientToUnblock = allClients.find(
+    //   (c) => c.username === usernameToUnblock
+    // );
+
+    const clientToUnblock = blockService.isBlocked(
+      client.username,
+      usernameToUnblock
     );
 
     if (!clientToUnblock) {
       client.socket.write(
-        `\x1b[1m\x1b[36m[chatney] usuário ${usernameToUnblock} não encontrado.\x1b[0m\n`
+        `\x1b[1m\x1b[36m[chatney] usuário ${usernameToUnblock} não encontrado na lista de bloqueios.\x1b[0m\n`
       );
       return;
     }
 
-    if (!client.blockedUsers.has(usernameToUnblock)) {
-      client.socket.write(
-        `\x1b[1m\x1b[36m[chatney] usuário ${usernameToUnblock} não está bloqueado por você.`
-      );
-      return;
-    }
+    // if (!client.blockedUsers.has(usernameToUnblock)) {
+    //   client.socket.write(
+    //     `\x1b[1m\x1b[36m[chatney] usuário ${usernameToUnblock} não está bloqueado por você.`
+    //   );
+    //   return;
+    // }
 
-    client.blockedUsers.delete(usernameToUnblock);
+    // client.blockedUsers.delete(usernameToUnblock);
+
+    blockService.unblockUser(usernameToUnblock);
     client.socket.write(
       `\x1b[1m\x1b[36m[chatney] o usuário ${usernameToUnblock} foi desbloqueado.\x1b[0m\n`
     );
