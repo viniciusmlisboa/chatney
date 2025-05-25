@@ -1,8 +1,8 @@
-const db = require("./database/db");
+const db = require("../database/db");
 
 function create(username) {
   try {
-    const query = db.prepare("INSERT INTO users (username) VALUES (?");
+    const query = db.prepare("INSERT INTO users (username) VALUES (?)");
     const result = query.run(username);
     return result.lastInsertRowid;
   } catch (err) {

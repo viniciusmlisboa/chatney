@@ -1,4 +1,4 @@
-const db = require("./database/db");
+const db = require("../database/db");
 
 function blockUser(blocker, blocked) {
   const stmt = db.prepare(
