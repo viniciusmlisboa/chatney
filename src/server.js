@@ -15,7 +15,6 @@ net
       username: null,
       room: "geral",
       authenticated: false,
-      blockedUsers: new Set(),
     };
 
     rooms["geral"].add(client);
