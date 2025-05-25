@@ -1,4 +1,5 @@
 const userService = require("../services/userService");
+const { info } = require("../utils/chatFormat");
 
 module.exports = (rooms, allClients, client, args) => {
   if (client.authenticated) {
@@ -21,9 +22,9 @@ module.exports = (rooms, allClients, client, args) => {
     return;
   }
 
-  userService.create(username, password);
   client.username = username;
   client.authenticated = true;
 
+  userService.create(username, password, "geral");
   client.socket.write(info("boas vindas ao chatney"));
 };

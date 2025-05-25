@@ -1,3 +1,5 @@
+const roomService = require("../services/roomService");
+const userService = require("../services/userService");
 const { info } = require("../utils/chatFormat");
 
 module.exports = (rooms, allClients, client, args) => {
@@ -22,11 +24,14 @@ module.exports = (rooms, allClients, client, args) => {
   if (!(roomName in rooms)) {
     console.log("[LOG] Room inexistente, criando...");
     rooms[roomName] = new Set();
+    roomService.create(roomName);
   }
 
   rooms[client.room].delete(client);
   client.room = roomName;
   rooms[roomName].add(client);
+
+  userService.changeCurrentRoom(roomName, client.username);
 
   client.socket.write(info(`você entrou na sala ${roomName}.`));
 
