@@ -14,7 +14,7 @@ function create(username) {
 
 function getByUsername(username) {
   const query = db.prepare("SELECT * FROM users WHERE username = ?");
-  return query.run(username);
+  return query.get(username);
 }
 
 module.exports = {
