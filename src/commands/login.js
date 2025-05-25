@@ -28,6 +28,7 @@ module.exports = (rooms, allClients, client, args) => {
   }
 
   client.username = username;
+  client.room = user.current_room;
   client.authenticated = true;
   client.socket.write(info("que bom te ver de novo!"));
 };
