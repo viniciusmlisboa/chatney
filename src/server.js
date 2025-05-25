@@ -1,6 +1,6 @@
 const net = require("net");
 const fs = require("fs");
-const commands = require("./commands.js");
+const commands = require("./commands");
 
 const clients = [];
 
